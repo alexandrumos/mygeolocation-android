@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainScreen" >
+
+    <item android:id="@+id/action_locate"
+        android:icon="@drawable/ic_fa_map_marker"
+        android:orderInCategory="100"
+        android:showAsAction="always" />
+
+    <item android:id="@+id/action_about"
+        android:icon="@drawable/ic_fa_info_circle"
+        android:orderInCategory="101"
+        android:showAsAction="always" />
+</menu>
