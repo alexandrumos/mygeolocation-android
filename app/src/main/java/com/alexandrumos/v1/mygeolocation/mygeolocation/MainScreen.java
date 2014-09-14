@@ -56,8 +56,8 @@ public class MainScreen extends Activity implements LocationListener {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        Log.v(TAG, "onCreate initComplete=" + initComplete);
 
+        // to permit HTTP requests from main thread (I know isn't nice...)
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -71,6 +71,7 @@ public class MainScreen extends Activity implements LocationListener {
         }
     }
 
+    // shows the splash layout and starts the internet connection test
     public void initSplashScreen() {
         setContentView(R.layout.entry);
 
@@ -80,8 +81,10 @@ public class MainScreen extends Activity implements LocationListener {
         splashCheckAgain = (Button) findViewById(R.id.buttonCheckAgain);
 
         if (internetDetected.equals(true)) {
+            // we know that internet is accessible
             splashFirstDetection();
         } else {
+            // adding a delay in order to have the layout drawn and check label displayed
             new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
@@ -94,24 +97,30 @@ public class MainScreen extends Activity implements LocationListener {
 
     public void checkInternetConnectivity() {
         if (checkInternetConnection()) {
+            // the Google API request and respons was successfully sent and received
             internetDetected = true;
             splashFirstDetection();
         } else {
+            // showing the internet connection check retry button
             splashText.setVisibility(View.GONE);
             splashCheckAgain.setVisibility(View.VISIBLE);
         }
     }
 
+    // handles the action: click on the retry button
     public void buttonCheckInternetAgain(View v) {
         checkInternetConnectivity();
     }
 
+    // shows the location waiting message and starts the location manager update request
     public void splashFirstDetection() {
         splashText.setText(R.string.text_splash_obtaining_loc);
 
+        // places the location manager update request
         getMyLocation();
     }
 
+    // returns the layout type (portrait or landscape)
     private int detectMainLayoutType() {
         switch (screenOrientation) {
             case Configuration.ORIENTATION_PORTRAIT:
@@ -123,6 +132,7 @@ public class MainScreen extends Activity implements LocationListener {
         }
     }
 
+    // handles the marker icon into the action bar (semi-transp or default)
     public void setObtainAddressIconStatus(Boolean status) {
 
         MenuItem marker = abMenu.getItem(0);
@@ -137,6 +147,7 @@ public class MainScreen extends Activity implements LocationListener {
         marker.setIcon(getResources().getDrawable(iconId));
     }
 
+    // initializes the layout for main screen
     public void initMainScreen() {
         setContentView(detectMainLayoutType());
 
@@ -159,6 +170,7 @@ public class MainScreen extends Activity implements LocationListener {
         mapController.setZoom(22);
     }
 
+    // does a request to Google Geocode API to obtain the address for the detected latitude and longitude
     public String reverseGeocodeLocation(double lat, double lng) {
         String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + String.format("%.7f", lat) + "," + String.format("%.7f", lng);
         String address = "";
@@ -204,6 +216,7 @@ public class MainScreen extends Activity implements LocationListener {
         return address;
     }
 
+    // not used for now...
     public void retrieveDisplaySizeInDp() {
         Display display = getWindowManager().getDefaultDisplay();
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -226,7 +239,7 @@ public class MainScreen extends Activity implements LocationListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (initComplete.equals(true)) {
-            // handling the action bar icons select only into the main screen
+            // handling the action bar icons select only into the main screen, not in splash screen too
             switch (item.getItemId()) {
                 // about icon was pressed
                 case R.id.action_about:
@@ -247,11 +260,13 @@ public class MainScreen extends Activity implements LocationListener {
         return super.onOptionsItemSelected(item);
     }
 
+    // starts the about screen intent
     public void showAboutScreen() {
         Intent intent = new Intent(this, AboutScreen.class);
         startActivity(intent);
     }
 
+    // starts the location listener request and handles the layout
     public void getMyLocation() {
         if (firstDetection.equals(false)) {
             Toast.makeText(getApplicationContext(), getString(R.string.toast_locating), Toast.LENGTH_LONG).show();
@@ -265,6 +280,7 @@ public class MainScreen extends Activity implements LocationListener {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, locationUpdateInterval, 0, this);
     }
 
+    // location update received
     @Override
     public void onLocationChanged(Location location) {
         if (locationUpdateCounter <= locationUpdateLimit) {
